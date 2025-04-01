@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可愛貪吃蛇遊戲</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #FFE5E5;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', Arial, sans-serif;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        body::before {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='64' height='64'%3E%3Cpath fill='%23FFB6C1' fill-opacity='0.1' d='M12 3c-1.5 0-2.7.9-3.2 2.2-.5-.3-1.1-.4-1.7-.4-2 0-3.6 1.6-3.6 3.6 0 1.1.5 2.1 1.3 2.8-.8.7-1.3 1.7-1.3 2.8 0 2 1.6 3.6 3.6 3.6.6 0 1.2-.2 1.7-.4.5 1.3 1.7 2.2 3.2 2.2s2.7-.9 3.2-2.2c.5.3 1.1.4 1.7.4 2 0 3.6-1.6 3.6-3.6 0-1.1-.5-2.1-1.3-2.8.8-.7 1.3-1.7 1.3-2.8 0-2-1.6-3.6-3.6-3.6-.6 0-1.2.2-1.7.4C14.7 3.9 13.5 3 12 3z'/%3E%3C/svg%3E") 0 0 / 64px 64px repeat;
+            animation: floatStrawberries1 60s linear infinite;
+        }
+        body::after {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='48' height='48'%3E%3Cpath fill='%23FFB6C1' fill-opacity='0.08' d='M12 3c-1.5 0-2.7.9-3.2 2.2-.5-.3-1.1-.4-1.7-.4-2 0-3.6 1.6-3.6 3.6 0 1.1.5 2.1 1.3 2.8-.8.7-1.3 1.7-1.3 2.8 0 2 1.6 3.6 3.6 3.6.6 0 1.2-.2 1.7-.4.5 1.3 1.7 2.2 3.2 2.2s2.7-.9 3.2-2.2c.5.3 1.1.4 1.7.4 2 0 3.6-1.6 3.6-3.6 0-1.1-.5-2.1-1.3-2.8.8-.7 1.3-1.7 1.3-2.8 0-2-1.6-3.6-3.6-3.6-.6 0-1.2.2-1.7.4C14.7 3.9 13.5 3 12 3z'/%3E%3C/svg%3E") 30px 30px / 48px 48px repeat;
+            animation: floatStrawberries2 45s linear infinite;
+        }
+        @keyframes floatStrawberries1 {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-64px, -64px); }
+        }
+        @keyframes floatStrawberries2 {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-48px, -48px); }
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Varela+Round&display=swap');
+        .game-container {
+            background-color: #FFF;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            width: 90%;
+            max-width: fit-content;
+            margin: 0 auto;
+        }
+        canvas {
+            border: 3px solid #FFB6C1;
+            border-radius: 10px;
+            background-color: #FFF5F5;
+            max-width: 100%;
+            height: auto;
+        }
+        .game-info {
+            margin: 10px 0;
+            font-size: 20px;
+            color: #FF69B4;
+            text-align: center;
+        }
+        .score-display {
+            background-color: #FFB6C1;
+            padding: 5px 15px;
+            border-radius: 12px;
+            color: white;
+            display: inline-block;
+        }
+        .controls {
+            text-align: center;
+            color: #FF69B4;
+            font-size: 14px;
+            line-height: 1.4;
+            border: 2px solid #FFB6C1;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: #FFE6EA;
+            min-width: 200px;
+        }
+        .game-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            position: absolute;
+            right: -120px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .game-button {
+            width: 80px;
+            height: 40px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #FFB6C1, #FF69B4);
+            color: white;
+            font-size: 14px;
+            font-family: 'Varela Round', 'Comic Sans MS', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+        }
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: absolute;
+            right: -100px;
+            bottom: 0;
+        }
+        .game-button {
+            width: 80px;
+            height: 50px;
+            border-radius: 15px;
+            border: none;
+            background: #FF0000;
+            color: white;
+            font-size: 16px;
+            font-family: 'Varela Round', 'Comic Sans MS', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .game-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6);
+        }
+        .game-button:hover::before {
+            left: 100%;
+        }
+        .game-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+        }
+        .game-rules {
+            background-color: #FFF;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px dashed #FFB6C1;
+            width: 100%;
+            max-width: 800px;
+        }
+        .game-rules h2 {
+            color: #FF69B4;
+            margin-top: 0;
+            font-size: 18px;
+            text-align: center;
+        }
+        .game-rules ul {
+            color: #666;
+            padding-left: 20px;
+            margin: 8px 0;
+            font-size: 14px;
+            font-family: 'Varela Round', 'Comic Sans MS', sans-serif;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        .game-rules li {
+            margin: 6px 0;
+        }
+        .virtual-controller {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: absolute;
+            left: -180px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .controller-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+        .direction-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+        }
+        .direction-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(255, 182, 193, 0.6);
+        }
+        .direction-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(255, 182, 193, 0.3);
+        }
+        .direction-btn.middle {
+            visibility: hidden;
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .virtual-controller {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-info">
+            <div class="score-display">
+                分數：<span id="score">0</span>
+            </div>
+        </div>
+        <div style="position: relative; width: fit-content;">
+            <canvas id="gameCanvas" width="400" height="300"></canvas>
+            <div class="virtual-controller">
+                <div class="controller-row">
+                    <button class="direction-btn middle"></button>
+                    <button class="direction-btn" data-direction="up">↑</button>
+                    <button class="direction-btn middle"></button>
+                </div>
+                <div class="controller-row">
+                    <button class="direction-btn" data-direction="left">←</button>
+                    <button class="direction-btn middle"></button>
+                    <button class="direction-btn" data-direction="right">→</button>
+                </div>
+                <div class="controller-row">
+                    <button class="direction-btn middle"></button>
+                    <button class="direction-btn" data-direction="down">↓</button>
+                    <button class="direction-btn middle"></button>
+                </div>
+            </div>
+            <div class="game-buttons">
+                <button id="startBtn" class="game-button" title="開始">PLAY</button>
+                <button id="pauseBtn" class="game-button" title="暫停">PAUSE</button>
+                <button id="resetBtn" class="game-button" title="重新開局">RESTART</button>
+            </div>
+        </div>
+    </div>
+    <div class="game-rules">
+        <h2>遊戲說明</h2>
+        <ul>
+            <li>使用方向鍵或螢幕按鈕控制蛇的移動方向</li>
+            <li>吃到食物可以增加分數和蛇的長度</li>
+            <li>撞到牆壁或自己的身體會結束遊戲</li>
+            <li>按PLAY開始遊戲，PAUSE暫停，RESTART重新開始</li>
+        </ul>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
